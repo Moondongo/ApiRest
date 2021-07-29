@@ -1,0 +1,32 @@
+{{> header}}
+<div class='container-home'>
+	<form class='post'>
+		<div class='post-input'>
+			<label for='content_es'>Contenido en Español:</label>
+			<textarea name='content_es' maxlength='300' placeholder="saca la mano de ahi, carajo!" required></textarea>
+		</div>
+		<div class='post-input'>
+			<label for='content_en'>Content in English:</label>
+			<textarea name='content_en' maxlength='300' placeholder="Excuse me, do you serve cocaine here" required></textarea>
+		</div>
+		<div class='post-input'>
+			<label for='video'>Youtube ID:</label>
+			<input type='text' name='video' autocomplete='off' placeholder="0KFDWqRZJaQ" />
+		</div>
+		<div class='post-input'>
+			<input
+				type='file'
+				name='archivos'
+				accept='image/png, image/jpeg, image/gif'
+				id='file'
+				class='custom-file-input'
+				multiple
+			/>
+		</div>
+		<div class='post-input'>
+			<button type='submit'>Publicar</button>
+		</div>
+	</form>
+</div>
+
+<script src='./js/home.js'></script>
