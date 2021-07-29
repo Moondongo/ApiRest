@@ -32,6 +32,7 @@ const main = async () => {
 
 	$form.addEventListener('submit', async (e) => {
 		e.preventDefault();
+		document.querySelector('.post button').textContent = 'Espere un momento...';
 		document.querySelector('.post button').disabled = true;
 
 		const token = localStorage.getItem('token') || '';
@@ -71,7 +72,9 @@ const main = async () => {
 				if (msg) {
 					return sessionStorage.setItem('error', msg);
 				}
+
 				document.querySelector('.post button').disabled = false;
+				document.querySelector('.post button').textContent = 'Publicar';
 				console.log(post);
 			})
 			.catch((err) => {

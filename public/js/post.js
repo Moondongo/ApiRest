@@ -55,6 +55,7 @@ const insertarCards = (post) => {
 						frameborder='0'
 						allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
 						allowfullscreen
+						loading="lazy"
 					></iframe>
 				</li>
 			`;
@@ -71,7 +72,7 @@ const insertarCards = (post) => {
 
 			slider.innerHTML += `
 				<li id='${public_id}'>
-					<img src='${img}'/>
+					<img src='${img}' loading="lazy"/>
 				</li>
 			`;
 			menu.innerHTML += `
