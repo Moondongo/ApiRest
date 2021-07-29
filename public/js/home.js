@@ -1,6 +1,6 @@
 const url = window.location.hostname.includes('localhost')
 	? 'http://localhost:8081/'
-	: 'https://domediscover-api.herokuapp.com//';
+	: 'https://domediscover-api.herokuapp.com/';
 const error = sessionStorage.getItem('error');
 let usuario = null;
 
