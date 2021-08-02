@@ -3,10 +3,9 @@ const url = window.location.hostname.includes('localhost')
 	: 'https://domediscover-api.herokuapp.com/';
 const error = sessionStorage.getItem('error');
 let usuario = null;
-
+const token = localStorage.getItem('token') || '';
 //Validar el token del localstorage
 const validarJWT = async () => {
-	const token = localStorage.getItem('token') || '';
 	if (token.length <= 10) {
 		window.location = url + 'login';
 		throw new Error('No hay token en el servidor');
@@ -29,7 +28,6 @@ const main = async () => {
 	await validarJWT();
 
 	const $form = document.querySelector('form');
-
 	$form.addEventListener('submit', async (e) => {
 		e.preventDefault();
 		document.querySelector('.post button').textContent = 'Espere un momento...';
@@ -75,7 +73,7 @@ const main = async () => {
 
 				document.querySelector('.post button').disabled = false;
 				document.querySelector('.post button').textContent = 'Publicar';
-				console.log(post);
+				window.location = url + 'post';
 			})
 			.catch((err) => {
 				console.log(err);
@@ -87,11 +85,8 @@ const main = async () => {
 main();
 //leo los errores guardados en sessionStorage
 if (error) {
-	console.log(error);
-
 	sessionStorage.removeItem('error');
 }
-
 document.querySelector('.logout').addEventListener('click', () => {
 	localStorage.removeItem('token');
 	window.location = url + 'login';

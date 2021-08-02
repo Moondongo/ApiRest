@@ -3,10 +3,10 @@ const borrarImg = require('../helpers/borrar-img');
 const Post = require('../models/post-model');
 
 const postGet = async (req = request, res = response) => {
-	const { limite = 5, desde = 0 } = req.query;
+	const { limite = 5, desde = 0, order = 1 } = req.query;
 	const [total, post] = await Promise.all([
 		Post.countDocuments(),
-		Post.find().skip(Number(desde)).limit(Number(limite)),
+		Post.find().skip(Number(desde)).limit(Number(limite)).sort({ date: order }),
 	]);
 
 	res.json({

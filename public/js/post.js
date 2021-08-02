@@ -22,18 +22,66 @@ const validarJWT = async () => {
 	localStorage.setItem('token', tokenDB);
 };
 
+const buttons = () => {
+	document.querySelectorAll('.post-view').forEach((card) => {
+		//!Slider
+		const children = card.lastElementChild.children;
+		let position = 0;
+		const totalImg = children.length - 1;
+
+		card.addEventListener('click', async (e) => {
+			//!Deleted
+			if (e.target.classList.contains('deleted')) {
+				e.target.disabled = true;
+				const id = e.target.value;
+				await fetch(url + `api/post/${id}`, {
+					method: 'DELETE',
+					headers: { 'x-token': token },
+				})
+					.then((resp) => resp.json())
+					.then((resp) => {
+						const { errors, msg } = resp;
+						if (errors || msg) {
+							console.log({ errors, msg });
+							e.target.disabled = false;
+						} else {
+							card.remove();
+						}
+					});
+			}
+
+			//!Slider
+			//* CLICK NEXT
+			if (e.target.classList.contains('next')) {
+				position === totalImg - 1 ? (position = 0) : position++;
+				updateSlide(children, position);
+			}
+			//* CLICK PREV
+			else if (e.target.classList.contains('prev')) {
+				position === 0 ? (position = totalImg - 1) : position--;
+				updateSlide(children, position);
+			}
+		});
+	});
+};
+const updateSlide = (slides, position) => {
+	for (const slide of slides) {
+		slide.classList.remove('carousel_item--visible');
+	}
+	slides[position].classList.add('carousel_item--visible');
+};
+
 const insertarCards = (post) => {
 	for (let element in post) {
 		const data = post[element];
-
 		const postView = document.createElement('div');
 		postView.classList.add('post-view');
 		const content = document.createElement('div');
 		content.classList.add('content');
-		const slider = document.createElement('ul');
-		slider.classList.add('slider');
-		const menu = document.createElement('ul');
-		menu.classList.add('menu');
+		const slider = document.createElement('div');
+		slider.classList.add('carousel');
+		const menu = document.createElement('div');
+		menu.classList.add('carousel_actions');
 
 		postView.innerHTML = `
 			<button value='${data._id}' class='deleted'>BORRAR</button>
@@ -46,7 +94,7 @@ const insertarCards = (post) => {
 
 		if (data.video) {
 			slider.innerHTML = `
-				<li id='${data.video}'>
+				<div class="carousel_item carousel_item--visible">
 					<iframe
 						width='350'
 						height='200'
@@ -57,34 +105,62 @@ const insertarCards = (post) => {
 						allowfullscreen
 						loading="lazy"
 					></iframe>
-				</li>
+				</div>
 			`;
-			menu.innerHTML = `
-				<li>
-					<a href='#${data.video}' target="_top" ></a>
-				</li>
-			`;
+			for (const img of data.img) {
+				slider.innerHTML += `
+					<div class="carousel_item">
+						<a href="${img}" target="_blank">
+							<img
+								class="img"
+								src="${img}"
+							/>
+						</a>
+					</div>
+				`;
+			}
+		} else {
+			for (const i in data.img) {
+				if (i == 0) {
+					slider.innerHTML += `
+					<div class="carousel_item carousel_item--visible">
+						<a href="${data.img[i]}" target="_blank">
+							<img
+								class="img"
+								src="${data.img[i]}"
+							/>
+						</a>
+					</div>
+				`;
+				} else {
+					slider.innerHTML += `
+					<div class="carousel_item">
+						<a href="${data.img[i]}" target="_blank">
+							<img
+								class="img"
+								src="${data.img[i]}"
+							/>
+						</a>
+					</div>
+				`;
+				}
+			}
 		}
-		for (const img of data.img) {
-			const nombreArray = img.split('/');
-			const nombreArchivo = nombreArray[nombreArray.length - 1];
-			const [public_id] = nombreArchivo.split('.');
 
+		if (data.img.length > 1 || (data.img.length > 0 && data.video)) {
 			slider.innerHTML += `
-				<li id='${public_id}'>
-					<img src='${img}' loading="lazy"/>
-				</li>
-			`;
-			menu.innerHTML += `
-				<li>
-					<a href='#${public_id}'></a>
-				</li>
+				<div class="carousel_actions">
+					<button id="prev" aria-label="Previous Slide" class="prev">
+						<i class="fas fa-angle-double-left"></i>
+					</button>
+					<button id="next" aria-label="Next Slide" class="next">
+						<i class="fas fa-angle-double-right"></i>
+					</button>
+				</div>
 			`;
 		}
-
 		postView.appendChild(content);
 		postView.appendChild(slider);
-		postView.appendChild(menu);
 		document.querySelector('.container-post').appendChild(postView);
 	}
 };
@@ -97,30 +173,8 @@ const main = async () => {
 			(resp) => resp.json()
 		);
 
-		insertarCards(post);
-		const $card = document.querySelectorAll('.post-view');
-		$card.forEach((card) => {
-			card.addEventListener('click', async (e) => {
-				if (e.target.nodeName === 'BUTTON') {
-					e.target.disabled = true;
-					const id = e.target.value;
-					await fetch(url + `api/post/${id}`, {
-						method: 'DELETE',
-						headers: { 'x-token': token },
-					})
-						.then((resp) => resp.json())
-						.then((resp) => {
-							const { errors, msg } = resp;
-							if (errors || msg) {
-								console.log({ errors, msg });
-								e.target.disabled = false;
-							} else {
-								card.remove();
-							}
-						});
-				}
-			});
-		});
+		insertarCards(post.reverse());
+		buttons();
 	} catch (error) {
 		console.log(error);
 	}
