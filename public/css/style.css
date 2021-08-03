@@ -403,7 +403,15 @@ body {
 	margin-bottom: 1em;
 	user-select: none;
 }
-
+.carousel .counter-item {
+	position: absolute;
+	margin: 0.5em;
+	right: 0;
+	color: var(--primary-light);
+	background-color: rgba(0, 0, 0, 0.5);
+	padding: 5px;
+	border-radius: 2px;
+}
 .carousel .carousel_item {
 	display: none;
 }
@@ -417,7 +425,7 @@ body {
 
 .carousel .carousel_item--visible {
 	display: block;
-	animation: fadeVisibility 0.5s;
+	/* animation: fadeVisibility 0.5s; */
 }
 @keyframes fadeVisibility {
 	0% {

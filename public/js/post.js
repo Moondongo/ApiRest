@@ -27,7 +27,13 @@ const buttons = () => {
 		//!Slider
 		const children = card.lastElementChild.children;
 		let position = 0;
-		const totalImg = children.length - 1;
+		const totalImg = Number(card.lastElementChild.children[0].textContent);
+		if (totalImg < 1) {
+			card.lastElementChild.children[0].textContent = '';
+			card.lastElementChild.children[0].classList.remove('counter-item');
+		} else {
+			children[0].textContent = `1/${totalImg}`;
+		}
 
 		card.addEventListener('click', async (e) => {
 			//!Deleted
@@ -54,26 +60,28 @@ const buttons = () => {
 			//* CLICK NEXT
 			if (e.target.classList.contains('next')) {
 				position === totalImg - 1 ? (position = 0) : position++;
-				updateSlide(children, position);
+				updateSlide(children, position, totalImg);
 			}
 			//* CLICK PREV
 			else if (e.target.classList.contains('prev')) {
 				position === 0 ? (position = totalImg - 1) : position--;
-				updateSlide(children, position);
+				updateSlide(children, position, totalImg);
 			}
 		});
 	});
 };
-const updateSlide = (slides, position) => {
+const updateSlide = (slides, position, totalImg) => {
+	slides[0].textContent = `${position + 1}/${totalImg}`;
 	for (const slide of slides) {
 		slide.classList.remove('carousel_item--visible');
 	}
-	slides[position].classList.add('carousel_item--visible');
+	slides[position + 1].classList.add('carousel_item--visible');
 };
 
 const insertarCards = (post) => {
 	for (let element in post) {
 		const data = post[element];
+		const totalItem = data.img.length + (data.video ? 1 : 0);
 		const postView = document.createElement('div');
 		postView.classList.add('post-view');
 		const content = document.createElement('div');
@@ -92,8 +100,9 @@ const insertarCards = (post) => {
 			<p>${data.content_es}</p>
 		`;
 
+		slider.innerHTML += `<span class="counter-item">${totalItem}</span>`;
 		if (data.video) {
-			slider.innerHTML = `
+			slider.innerHTML += `
 				<div class="carousel_item carousel_item--visible">
 					<iframe
 						width='350'
