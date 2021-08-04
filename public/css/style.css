@@ -133,6 +133,7 @@ body {
 	color: var(--secundary-black);
 	background-color: var(--primary-black);
 	box-shadow: 0 3px 0 var(--secundary-light-shadow);
+	animation: pulsate-bck 1s ease-in-out infinite both;
 }
 
 /*TODO: HOME #####################**/

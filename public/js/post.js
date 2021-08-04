@@ -78,31 +78,36 @@ const updateSlide = (slides, position, totalImg) => {
 	slides[position + 1].classList.add('carousel_item--visible');
 };
 
+const rezizeIMG = (url = '') => {
+	const toReplace = url.split('/')[6];
+	const modificador = 'w_500,f_auto,q_80/';
+	return url.replace(toReplace, modificador);
+};
 const insertarCards = (post) => {
+	const $fragment = document.createDocumentFragment();
+
 	for (let element in post) {
 		const data = post[element];
 		const totalItem = data.img.length + (data.video ? 1 : 0);
-		const postView = document.createElement('div');
-		postView.classList.add('post-view');
-		const content = document.createElement('div');
-		content.classList.add('content');
-		const slider = document.createElement('div');
-		slider.classList.add('carousel');
-		const menu = document.createElement('div');
-		menu.classList.add('carousel_actions');
+		const $postView = document.createElement('div');
+		$postView.classList.add('post-view');
+		const $content = document.createElement('div');
+		$content.classList.add('content');
+		const $slider = document.createElement('div');
+		$slider.classList.add('carousel');
 
-		postView.innerHTML = `
+		$postView.innerHTML = `
 			<button value='${data._id}' class='deleted'>BORRAR</button>
 		`;
 
-		content.innerHTML = `
+		$content.innerHTML = `
 			<span>${new Date(data.date).toLocaleDateString()}</span>
 			<p>${data.content_es}</p>
 		`;
 
-		slider.innerHTML += `<span class="counter-item">${totalItem}</span>`;
+		$slider.innerHTML += `<span class="counter-item">${totalItem}</span>`;
 		if (data.video) {
-			slider.innerHTML += `
+			$slider.innerHTML += `
 				<div class="carousel_item carousel_item--visible">
 					<iframe
 						width='350'
@@ -112,17 +117,17 @@ const insertarCards = (post) => {
 						frameborder='0'
 						allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
 						allowfullscreen
-						loading="lazy"
 					></iframe>
 				</div>
 			`;
 			for (const img of data.img) {
-				slider.innerHTML += `
+				$slider.innerHTML += `
 					<div class="carousel_item">
 						<a href="${img}" target="_blank">
 							<img
 								class="img"
-								src="${img}"
+								src="${rezizeIMG(img)}"
+								loading="lazy"
 							/>
 						</a>
 					</div>
@@ -131,23 +136,24 @@ const insertarCards = (post) => {
 		} else {
 			for (const i in data.img) {
 				if (i == 0) {
-					slider.innerHTML += `
+					$slider.innerHTML += `
 					<div class="carousel_item carousel_item--visible">
 						<a href="${data.img[i]}" target="_blank">
 							<img
 								class="img"
-								src="${data.img[i]}"
+								src="${rezizeIMG(data.img[i])}"
 							/>
 						</a>
 					</div>
 				`;
 				} else {
-					slider.innerHTML += `
+					$slider.innerHTML += `
 					<div class="carousel_item">
 						<a href="${data.img[i]}" target="_blank">
 							<img
 								class="img"
-								src="${data.img[i]}"
+								src="${rezizeIMG(data.img[i])}"
+								loading="lazy"
 							/>
 						</a>
 					</div>
@@ -157,7 +163,7 @@ const insertarCards = (post) => {
 		}
 
 		if (data.img.length > 1 || (data.img.length > 0 && data.video)) {
-			slider.innerHTML += `
+			$slider.innerHTML += `
 				<div class="carousel_actions">
 					<button id="prev" aria-label="Previous Slide" class="prev">
 						<i class="fas fa-angle-double-left"></i>
@@ -168,10 +174,11 @@ const insertarCards = (post) => {
 				</div>
 			`;
 		}
-		postView.appendChild(content);
-		postView.appendChild(slider);
-		document.querySelector('.container-post').appendChild(postView);
+		$postView.appendChild($content);
+		$postView.appendChild($slider);
+		$fragment.appendChild($postView);
 	}
+	document.querySelector('.container-post').appendChild($fragment);
 };
 
 const main = async () => {
