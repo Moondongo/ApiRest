@@ -1,3 +1,4 @@
+const $postContainer = document.querySelector('.container-post');
 const url = window.location.hostname.includes('localhost')
 	? 'http://localhost:8081/'
 	: 'https://domediscover-api.herokuapp.com/';
@@ -22,61 +23,61 @@ const validarJWT = async () => {
 	localStorage.setItem('token', tokenDB);
 };
 
-const buttons = () => {
-	document.querySelectorAll('.post-view').forEach((card) => {
-		//!Slider
-		const children = card.lastElementChild.children;
-		let position = 0;
-		const totalImg = Number(card.lastElementChild.children[0].textContent);
-		if (totalImg < 1) {
-			card.lastElementChild.children[0].textContent = '';
-			card.lastElementChild.children[0].classList.remove('counter-item');
-		} else {
-			children[0].textContent = `1/${totalImg}`;
-		}
+// const buttons = () => {
+// 	document.querySelectorAll('.post-view').forEach((card) => {
+// 		//!Slider
+// 		const children = card.lastElementChild.children;
+// 		let position = 0;
+// 		const totalImg = Number(card.lastElementChild.children[0].textContent);
+// 		if (totalImg < 1) {
+// 			card.lastElementChild.children[0].textContent = '';
+// 			card.lastElementChild.children[0].classList.remove('counter-item');
+// 		} else {
+// 			children[0].textContent = `1/${totalImg}`;
+// 		}
 
-		card.addEventListener('click', async (e) => {
-			//!Deleted
-			if (e.target.classList.contains('deleted')) {
-				e.target.disabled = true;
-				const id = e.target.value;
-				await fetch(url + `api/post/${id}`, {
-					method: 'DELETE',
-					headers: { 'x-token': token },
-				})
-					.then((resp) => resp.json())
-					.then((resp) => {
-						const { errors, msg } = resp;
-						if (errors || msg) {
-							console.log({ errors, msg });
-							e.target.disabled = false;
-						} else {
-							card.remove();
-						}
-					});
-			}
+// 		card.addEventListener('click', async (e) => {
+// 			//!Deleted
+// 			if (e.target.classList.contains('deleted')) {
+// 				e.target.disabled = true;
+// 				const id = e.target.value;
+// 				await fetch(url + `api/post/${id}`, {
+// 					method: 'DELETE',
+// 					headers: { 'x-token': token },
+// 				})
+// 					.then((resp) => resp.json())
+// 					.then((resp) => {
+// 						const { errors, msg } = resp;
+// 						if (errors || msg) {
+// 							console.log({ errors, msg });
+// 							e.target.disabled = false;
+// 						} else {
+// 							card.remove();
+// 						}
+// 					});
+// 			}
 
-			//!Slider
-			//* CLICK NEXT
-			if (e.target.classList.contains('next')) {
-				position === totalImg - 1 ? (position = 0) : position++;
-				updateSlide(children, position, totalImg);
-			}
-			//* CLICK PREV
-			else if (e.target.classList.contains('prev')) {
-				position === 0 ? (position = totalImg - 1) : position--;
-				updateSlide(children, position, totalImg);
-			}
-		});
-	});
-};
-const updateSlide = (slides, position, totalImg) => {
-	slides[0].textContent = `${position + 1}/${totalImg}`;
-	for (const slide of slides) {
-		slide.classList.remove('carousel_item--visible');
-	}
-	slides[position + 1].classList.add('carousel_item--visible');
-};
+// 			//!Slider
+// 			//* CLICK NEXT
+// 			if (e.target.classList.contains('next')) {
+// 				position === totalImg - 1 ? (position = 0) : position++;
+// 				updateSlide(children, position, totalImg);
+// 			}
+// 			//* CLICK PREV
+// 			else if (e.target.classList.contains('prev')) {
+// 				position === 0 ? (position = totalImg - 1) : position--;
+// 				updateSlide(children, position, totalImg);
+// 			}
+// 		});
+// 	});
+// };
+// const updateSlide = (slides, position, totalImg) => {
+// 	slides[0].textContent = `${position + 1}/${totalImg}`;
+// 	for (const slide of slides) {
+// 		slide.classList.remove('carousel_item--visible');
+// 	}
+// 	slides[position + 1].classList.add('carousel_item--visible');
+// };
 
 const rezizeIMG = (url = '') => {
 	const toReplace = url.split('/')[6];
@@ -84,6 +85,7 @@ const rezizeIMG = (url = '') => {
 	return url.replace(toReplace, modificador);
 };
 const insertarCards = (post) => {
+	let countCarouselActions = 0;
 	const $fragment = document.createDocumentFragment();
 
 	for (let element in post) {
@@ -105,7 +107,9 @@ const insertarCards = (post) => {
 			<p>${data.content_es}</p>
 		`;
 
-		$slider.innerHTML += `<span class="counter-item">${totalItem}</span>`;
+		if (totalItem > 1) {
+			$slider.innerHTML += `<span class="counter-item">1/${totalItem}</span>`;
+		}
 		if (data.video) {
 			$slider.innerHTML += `
 				<div class="carousel_item carousel_item--visible">
@@ -117,6 +121,7 @@ const insertarCards = (post) => {
 						frameborder='0'
 						allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
 						allowfullscreen
+						loading="lazy"
 					></iframe>
 				</div>
 			`;
@@ -164,7 +169,7 @@ const insertarCards = (post) => {
 
 		if (data.img.length > 1 || (data.img.length > 0 && data.video)) {
 			$slider.innerHTML += `
-				<div class="carousel_actions">
+				<div class="carousel_actions" data-id="${countCarouselActions}" data-pos="0" data-total="${totalItem}">
 					<button id="prev" aria-label="Previous Slide" class="prev">
 						<i class="fas fa-angle-double-left"></i>
 					</button>
@@ -173,14 +178,67 @@ const insertarCards = (post) => {
 					</button>
 				</div>
 			`;
+			countCarouselActions++;
 		}
 		$postView.appendChild($content);
 		$postView.appendChild($slider);
 		$fragment.appendChild($postView);
 	}
-	document.querySelector('.container-post').appendChild($fragment);
+	$postContainer.appendChild($fragment);
 };
 
+const eventPost = () => {
+	$postContainer.addEventListener('click', async (e) => {
+		if (e.target.matches('.deleted')) {
+			await deletePost(e);
+		}
+		if (e.target.parentElement.matches('.carousel_actions')) {
+			changeImg(e);
+		}
+	});
+};
+const deletePost = async (e) => {
+	e.target.disabled = true;
+	idPost = e.target.value;
+
+	await fetch(url + `api/post/${idPost}`, {
+		method: 'DELETE',
+		headers: { 'x-token': token },
+	})
+		.then((resp) => resp.json())
+		.then((resp) => {
+			const { errors, msg } = resp;
+			if (errors || msg) {
+				console.log({ errors, msg });
+				e.target.disabled = false;
+			} else {
+				e.target.parentElement.remove();
+			}
+		});
+};
+const changeImg = (e) => {
+	const actions = e.target.parentElement;
+	const carousel = actions.parentElement;
+	let position = Number(actions.getAttribute('data-pos'));
+	const totalImg = Number(actions.getAttribute('data-total'));
+
+	if (e.target.matches('.next')) {
+		position === totalImg - 1
+			? actions.setAttribute('data-pos', 0)
+			: actions.setAttribute('data-pos', position + 1);
+	} else if (e.target.matches('.prev')) {
+		position === 0
+			? actions.setAttribute('data-pos', totalImg - 1)
+			: actions.setAttribute('data-pos', position - 1);
+	}
+	position = Number(actions.getAttribute('data-pos'));
+
+	carousel.children[0].textContent = `${position + 1}/${totalImg}`;
+	for (const element of carousel.children) {
+		element.classList.remove('carousel_item--visible');
+	}
+	carousel.children[position + 1].classList.add('carousel_item--visible');
+};
 const main = async () => {
 	await validarJWT();
 
@@ -190,7 +248,8 @@ const main = async () => {
 		);
 
 		insertarCards(post.reverse());
-		buttons();
+		//buttons();
+		eventPost();
 	} catch (error) {
 		console.log(error);
 	}
