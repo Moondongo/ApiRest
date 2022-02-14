@@ -121,7 +121,6 @@ const insertarCards = (post) => {
 						frameborder='0'
 						allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
 						allowfullscreen
-						loading="lazy"
 					></iframe>
 				</div>
 			`;
@@ -169,7 +168,7 @@ const insertarCards = (post) => {
 
 		if (data.img.length > 1 || (data.img.length > 0 && data.video)) {
 			$slider.innerHTML += `
-				<div class="carousel_actions" data-id="${countCarouselActions}" data-pos="0" data-total="${totalItem}">
+				<div class="carousel_actions" data-pos="0" data-total="${totalItem}">
 					<button id="prev" aria-label="Previous Slide" class="prev">
 						<i class="fas fa-angle-double-left"></i>
 					</button>
@@ -221,7 +220,6 @@ const changeImg = (e) => {
 	const carousel = actions.parentElement;
 	let position = Number(actions.getAttribute('data-pos'));
 	const totalImg = Number(actions.getAttribute('data-total'));
-
 	if (e.target.matches('.next')) {
 		position === totalImg - 1
 			? actions.setAttribute('data-pos', 0)
@@ -236,6 +234,9 @@ const changeImg = (e) => {
 	carousel.children[0].textContent = `${position + 1}/${totalImg}`;
 	for (const element of carousel.children) {
 		element.classList.remove('carousel_item--visible');
+		if (element.children[0]?.tagName === 'IFRAME' && position === 1) {
+			//TODO: Hay que stopear el video de youtube
+		}
 	}
 	carousel.children[position + 1].classList.add('carousel_item--visible');
 };

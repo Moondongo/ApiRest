@@ -4,7 +4,10 @@
 	"description": "",
 	"main": "app.js",
 	"scripts": {
-		"start": "node app"
+		"start": "node app",
+		"build": "tsc && npm run copy",
+		"copy": "copyfiles --up 1 src/public/css/*.css dist",
+		"dev": "npm run build && node dist/index"
 	},
 	"author": "Moondongo",
 	"license": "UNLICENSED",
@@ -24,5 +27,10 @@
 		"passport-jwt": "^4.0.0",
 		"passport-local": "^1.0.0",
 		"uuid": "^8.3.2"
+	},
+	"devDependencies": {
+		"@types/cors": "^2.8.12",
+		"@types/express": "^4.17.13",
+		"copyfiles": "^2.4.1"
 	}
 }
